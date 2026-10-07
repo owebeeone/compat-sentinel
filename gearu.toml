@@ -1,0 +1,34 @@
+[project]
+name = "compat-sentinel"
+branch = "main"
+remote = "origin"
+tag_prefix = "v"
+github_repo = "owebeeone/compat-sentinel"
+
+[python]
+version = "static"
+manifest = "pyproject.toml"
+lockfiles = ["uv.lock"]
+lock_command = ["uv", "lock", "--python", "3.12"]
+
+[release]
+managed_files = ["src/compat_sentinel/__init__.py"]
+checks = [
+    ["uv", "run", "--no-project", "--python", "3.12", "python", "scripts/release_checks.py", "sync-version", "{python_version}"],
+    ["uv", "run", "--no-project", "--python", "3.12", "python", "scripts/release_checks.py", "verify-version", "{python_version}"],
+    ["uv", "run", "--no-project", "--python", "3.12", "python", "scripts/release_checks.py", "test-matrix", "{python_version}"],
+    ["uv", "run", "--no-project", "--python", "3.12", "--with", "build", "--with", "twine", "python", "scripts/release_checks.py", "distributions", "{python_version}"],
+]
+# Verification after the candidate commit must not rewrite its version mirror.
+exact_checks = [
+    ["uv", "run", "--no-project", "--python", "3.12", "python", "scripts/release_checks.py", "verify-version", "{python_version}"],
+    ["uv", "run", "--no-project", "--python", "3.12", "python", "scripts/release_checks.py", "test-matrix", "{python_version}"],
+    ["uv", "run", "--no-project", "--python", "3.12", "--with", "build", "--with", "twine", "python", "scripts/release_checks.py", "distributions", "{python_version}"],
+]
+github_notes = """
+compat-sentinel {tag}.
+
+See the commit history for changes. The release workflow verifies the supported
+Python versions and publishes a pure-Python wheel and source distribution to
+PyPI.
+"""

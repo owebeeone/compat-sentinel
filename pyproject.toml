@@ -1,0 +1,67 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "compat-sentinel"
+version = "0.1.0"
+description = "PEP 661 sentinel for Python versions before 3.15"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "compat-sentinel contributors" }]
+license = { file = "LICENSE" }
+keywords = ["sentinel", "pep661", "compatibility", "pickle"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+]
+
+[project.urls]
+Repository = "https://github.com/owebeeone/compat-sentinel"
+Issues = "https://github.com/owebeeone/compat-sentinel/issues"
+Source = "https://github.com/owebeeone/compat-sentinel"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+test = ["pytest>=7.0"]
+
+[tool.uv]
+exclude-newer = "1 week"
+
+[tool.hatch.version]
+path = "src/compat_sentinel/__init__.py"
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/compat_sentinel",
+  "tests",
+  "scripts/release_checks.py",
+  "gearu.toml",
+  "RELEASE.md",
+  "AGENTS.md",
+  "LICENSE",
+  "README.md",
+]
+
+# Run: uv run --with pytest pytest -q
+[tool.pytest.ini_options]
+pythonpath = [".", "src", "tests"]
+testpaths = ["tests"]
+
+[tool.compat-sentinel.test-matrix]
+python = ["3.12", "3.13", "3.14", "3.15"]
+
+[tool.pyright]
+extraPaths = ["src"]
+
+[tool.basedpyright]
+extraPaths = ["src"]

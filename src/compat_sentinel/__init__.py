@@ -1,6 +1,6 @@
 """compat_sentinel — PEP 661 sentinel for Python 3.10 and later."""
 
-__version__ = "0.1.1"
+__version__ = '0.1.2'
 
 try:
     from builtins import sentinel as sentinel

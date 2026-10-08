@@ -57,6 +57,13 @@ def test_caller_module_is_recorded() -> None:
     assert value.__module__ == __name__
 
 
+def test_caller_module_uses_the_frame_when_getframemodulename_is_missing(monkeypatch) -> None:
+    monkeypatch.setattr(sys, "_getframemodulename", None, raising=False)
+    value = sentinel("FRAME")
+
+    assert value.__module__ == __name__
+
+
 def test_attributes_are_closed() -> None:
     value = sentinel("MISSING")
 
@@ -113,6 +120,8 @@ def test_union_accepts_sentinel_on_either_side() -> None:
     assert reverse == typing.Union[value, str]
     assert value in typing.get_args(forward)
     assert value in typing.get_args(reverse)
+    with pytest.raises(TypeError):
+        value()
 
 
 def test_module_global_pickle_preserves_identity() -> None:

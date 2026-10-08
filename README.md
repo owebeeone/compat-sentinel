@@ -1,6 +1,6 @@
 # compat-sentinel
 
-PEP 661 `sentinel` for Python 3.12 and later.
+PEP 661 `sentinel` for Python 3.10 and later.
 
 On Python 3.15 and later, `compat_sentinel.sentinel` is the builtin. On older
 interpreters it is a local implementation with the same constructor, copy

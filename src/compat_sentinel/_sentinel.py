@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import sys
+import threading
 from typing import Union
+
+
+_UNION_LOCK = threading.Lock()
 
 
 class sentinel:
@@ -78,20 +82,46 @@ class sentinel:
         return object.__getattribute__(self, "_name")
 
     def __or__(self, other: object) -> object:
-        return Union[self, other]
+        return _union(self, other)
 
     def __ror__(self, other: object) -> object:
-        return Union[other, self]
+        return _union(other, self)
+
+
+def _reject_call(self: sentinel, *args: object, **kwargs: object) -> object:
+    raise TypeError("sentinel object is not callable")
+
+
+def _union(left: object, right: object) -> object:
+    """Build ``left | right``.
+
+    Python 3.10's ``typing.Union`` accepts a sentinel only while the instance
+    is callable. The marker is installed for that check and removed before
+    the union is returned.
+    """
+
+    try:
+        return Union[left, right]
+    except TypeError:
+        with _UNION_LOCK:
+            sentinel.__call__ = _reject_call
+            try:
+                return Union[left, right]
+            finally:
+                del sentinel.__call__
 
 
 def _caller_module() -> str:
     """Return the module that called ``sentinel()``.
 
     ``__new__`` is the direct caller, so the user frame is one level above it.
+    ``sys._getframemodulename`` exists on Python 3.12 and later. Older
+    interpreters use the same frame's globals.
     """
 
-    module_name = sys._getframemodulename(2)
-    if module_name is None:
+    getframemodulename = getattr(sys, "_getframemodulename", None)
+    module_name = getframemodulename(2) if getframemodulename is not None else None
+    if not module_name:
         module_name = sys._getframe(2).f_globals.get("__name__", "__main__")
     if not isinstance(module_name, str) or module_name == "":
         return "__main__"
